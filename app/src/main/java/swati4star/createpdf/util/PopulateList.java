@@ -66,9 +66,8 @@ public class PopulateList extends AsyncTask<Void, Void, Void> {
         } else {
             pdfFiles = mDirectoryUtils.searchPDF(mQuery);
         }
-        if (pdfFiles == null)
-            mHandler.post(mEmptyStateChangeListener::showNoPermissionsView);
-        else if (pdfFiles.size() == 0) {
+
+        if (pdfFiles.size() == 0) {
             mHandler.post(mEmptyStateChangeListener::setEmptyStateVisible);
             mHandler.post(() -> mAdapter.setData(null));
         } else {
