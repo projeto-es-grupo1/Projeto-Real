@@ -10,7 +10,9 @@ import android.print.PrintDocumentInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -35,15 +37,34 @@ public class PrintDocumentAdapterHelper extends PrintDocumentAdapter {
             int bytesRead;
 
             while ((bytesRead = input.read(buf)) > 0)
-                output.write(buf, 0, bytesRead);
+                try {
+                    output.write(buf, 0, bytesRead);
+                } catch (IOException e) {
+                    System.out.println("Error writing to destination file: " + e.getMessage());
+                }
 
             callback.onWriteFinished(new PageRange[]{PageRange.ALL_PAGES});
 
-            input.close();
-            output.close();
+            try {
+                input.close();
+            } catch (IOException e) {
+                System.out.println("Error closing the InputStream: " + e.getMessage());
+            }
 
+            try {
+                output.close();
+            } catch (IOException e) {
+                System.out.println("Error closing the OutputStream: " + e.getMessage());
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found" + e.getMessage());
+        } catch (SecurityException e) {
+            System.out.println("Security error: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("Null pointer error: " + e.getMessage());
         } catch (Exception e) {
-            //Catch exception
+            System.out.println(e.getMessage());
         }
     }
 
