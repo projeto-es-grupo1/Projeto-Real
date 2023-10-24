@@ -55,6 +55,7 @@ public class FileUriUtils {
     }
 
     private String getURIForMediaDoc(ContentResolver mContentResolver, Uri uri) {
+        String uriMedia = null;
         String documentId = DocumentsContract.getDocumentId(uri);
         String[] idArr = documentId.split(":");
         if (idArr.length == 2) {
@@ -80,9 +81,9 @@ public class FileUriUtils {
             // Get where clause with real document id.
             String whereClause = MediaStore.Images.Media._ID + " = " + realDocId;
 
-            return getImageRealPath(mContentResolver, mediaContentUri, whereClause);
+            uriMedia = getImageRealPath(mContentResolver, mediaContentUri, whereClause);
         }
-        return null;
+        return uriMedia;
     }
 
     private String getURIForDownloadDoc(ContentResolver mContentResolver, Uri uri) {
@@ -95,27 +96,29 @@ public class FileUriUtils {
     }
 
     private String getURIForExternalstorageDoc(Uri uri) {
+        String uriExternal = null;
         String documentId = DocumentsContract.getDocumentId(uri);
         String[] idArr = documentId.split(":");
         if (idArr.length == 2) {
             String type = idArr[0];
             String realDocId = idArr[1];
             if ("primary".equalsIgnoreCase(type)) {
-                return Environment.getExternalStorageDirectory() + "/" + realDocId;
+                uriExternal = Environment.getExternalStorageDirectory() + "/" + realDocId;
             }
         }
-        return null;
+        return uriExternal;
     }
 
     private String getUriForDocumentUri(ContentResolver mContentResolver, Uri uri) {
+        String uriDocument = null;
         if (checkURIAuthority(uri, mISMEDIADOC)) {
-            return getURIForMediaDoc(mContentResolver, uri);
+            uriDocument = getURIForMediaDoc(mContentResolver, uri);
         } else if (checkURIAuthority(uri, mISDOWNLOADDOC)) {
-            return getURIForDownloadDoc(mContentResolver, uri);
+            uriDocument = getURIForDownloadDoc(mContentResolver, uri);
         } else if (checkURIAuthority(uri, mEXTERNALSTORAGEDOC)) {
-            return getURIForExternalstorageDoc(uri);
+            uriDocument = getURIForExternalstorageDoc(uri);
         }
-        return null;
+        return uriDocument;
     }
 
     /**
@@ -126,25 +129,25 @@ public class FileUriUtils {
      * @return - real path of the image file on device
      */
     String getUriRealPathAboveKitkat(Context mContext, Uri uri) {
+        String realPath = null;
 
-        if (uri == null)
-            return null;
+        if (uri != null) {
+            ContentResolver mContentResolver = mContext.getContentResolver();
 
-        ContentResolver mContentResolver = mContext.getContentResolver();
+            if (checkURI(uri, "content")) {
+                if (checkURIAuthority(uri, mISGOOGLEPHOTODOC))
+                    realPath = uri.getLastPathSegment();
+                else
+                    realPath = getImageRealPath(mContentResolver, uri, null);
+            } else if (checkURI(uri, "file")) {
+                realPath = uri.getPath();
 
-        if (checkURI(uri, "content"))
-            if (checkURIAuthority(uri, mISGOOGLEPHOTODOC))
-                return uri.getLastPathSegment();
-            else
-                return getImageRealPath(mContentResolver, uri, null);
+            } else if (isDocumentUri(mContext, uri)) {
+                realPath = getUriForDocumentUri(mContentResolver, uri);
+            }
+        }
 
-        if (checkURI(uri, "file"))
-            return uri.getPath();
-
-        if (isDocumentUri(mContext, uri))
-            return getUriForDocumentUri(mContentResolver, uri);
-
-        return null;
+        return realPath;
     }
 
     /**
@@ -168,11 +171,10 @@ public class FileUriUtils {
 
                 // Get column index.
                 int imageColumnIndex = cursor.getColumnIndex(columnName);
-                if (imageColumnIndex == -1)
-                    return ret;
-
-                // Get column value which is the uri related file local path.
-                ret = cursor.getString(imageColumnIndex);
+                if (imageColumnIndex != -1) {
+                    // Get column value which is the uri related file local path.
+                    ret = cursor.getString(imageColumnIndex);
+                }
                 cursor.close();
             }
         }
@@ -187,9 +189,8 @@ public class FileUriUtils {
      */
     public String getFilePath(Uri uri) {
         String path = uri.getPath();
-        if (path == null)
-            return null;
-        path = path.replace("/document/raw:", "");
+        if (path != null)
+            path = path.replace("/document/raw:", "");
         return path;
     }
 
