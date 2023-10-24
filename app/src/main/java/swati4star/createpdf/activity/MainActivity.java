@@ -133,9 +133,10 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        if (actionBar != null)
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
             actionBar.show();
+        }
     }
 
     @Override
