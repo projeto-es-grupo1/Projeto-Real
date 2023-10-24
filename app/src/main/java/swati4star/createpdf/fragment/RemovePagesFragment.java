@@ -69,6 +69,19 @@ public class RemovePagesFragment extends Fragment implements MergeFilesAdapter.O
 
     private static final int INTENT_REQUEST_PICKFILE_CODE = 10;
     private static final int INTENT_REQUEST_REARRANGE_PDF = 11;
+
+    /** Defines the maximum page length before generating a new file name */
+    private static final int MAX_PAGE_LENGTH = 50;
+
+    /** Define a constant for the maximum page number */
+    private static final int MAX_PAGE_NUMBER = 100;
+
+    /** Define a constant for the minimum page number */
+    private static final int MIN_PAGE_NUMBER = 0;
+
+    /** Define a constant for the maximum compression percentage */
+    private static final int MAX_COMPRESSION_PERCENTAGE = 100;
+
     @BindView(R.id.lottie_progress)
     LottieAnimationView mLottieProgress;
     @BindView(R.id.selectFile)
@@ -175,7 +188,7 @@ public class RemovePagesFragment extends Fragment implements MergeFilesAdapter.O
      */
     private String setPath(String pages) {
         String outputPath;
-        if (pages.length() > 50) {
+        if (pages.length() > MAX_PAGE_LENGTH) {
             outputPath = mPath.replace(mActivity.getString(R.string.pdf_ext),
                     "_edited" + mActivity.getString(R.string.pdf_ext));
         } else {
@@ -221,12 +234,13 @@ public class RemovePagesFragment extends Fragment implements MergeFilesAdapter.O
         int check;
         try {
             check = Integer.parseInt(input);
-            if (check > 100 || check <= 0 || mPath == null) {
+            if (check > MAX_PAGE_NUMBER || check <= MIN_PAGE_NUMBER || mPath == null) {
                 StringUtils.getInstance().showSnackbar(mActivity, R.string.invalid_entry);
             } else {
                 String outputPath = mPath.replace(mActivity.getString(R.string.pdf_ext),
                         "_edited" + check + mActivity.getString(R.string.pdf_ext));
-                mPDFUtils.compressPDF(mPath, outputPath, 100 - check, this);
+                int compressionPercentage = MAX_COMPRESSION_PERCENTAGE - check;
+                mPDFUtils.compressPDF(mPath, outputPath, compressionPercentage, this);
             }
         } catch (NumberFormatException e) {
             StringUtils.getInstance().showSnackbar(mActivity, R.string.invalid_entry);

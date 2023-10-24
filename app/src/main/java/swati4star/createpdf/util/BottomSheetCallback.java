@@ -13,6 +13,18 @@ public class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback
     private final ImageView mUpArrow;
     private final boolean mIsAdded;
 
+    /** Constant to represent the maximum rotation angle (in degrees) of the arrow icon */
+    private static final float MAX_ROTATION_ANGLE = 180.0f;
+
+    /** Constant to represent the minimum bottom sheet slide offset for rotation */
+    private static final float MIN_SLIDE_OFFSET = -1.0f;
+
+    /** Constant to represent the maximum bottom sheet slide offset for rotation */
+    private static final float MAX_SLIDE_OFFSET = 1.0f;
+
+    /** Constant to represent the neutral rotation angle */
+    private static final float ZERO_DEGREES = 0.0f;
+
     public BottomSheetCallback(ImageView mUpArrow, boolean mIsFragmentAdded) {
         this.mUpArrow = mUpArrow;
         this.mIsAdded = mIsFragmentAdded;
@@ -36,10 +48,10 @@ public class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback
      * @param slideOffset offset to use to sync the animation with bottom sheet sliding
      */
     private void animateBottomSheetArrow(float slideOffset) {
-        if (slideOffset >= 0 && slideOffset <= 1) {
-            mUpArrow.setRotation(slideOffset * -180);
-        } else if (slideOffset >= -1 && slideOffset < 0) {
-            mUpArrow.setRotation(slideOffset * 180);
+        if (slideOffset >= ZERO_DEGREES && slideOffset <= MAX_SLIDE_OFFSET) {
+            mUpArrow.setRotation(slideOffset * -MAX_ROTATION_ANGLE);
+        } else if (slideOffset >= MIN_SLIDE_OFFSET && slideOffset < ZERO_DEGREES) {
+            mUpArrow.setRotation(slideOffset * MAX_ROTATION_ANGLE);
         }
     }
 }

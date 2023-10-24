@@ -23,13 +23,25 @@ public class PDFRotationUtils {
     private final SparseIntArray mAngleRadioButton;
     private final FileUtils mFileUtils;
 
+    /** Define a constant for the rotation angle of 90 degrees */
+    private static final int ROTATION_ANGLE_90 = 90;
+
+    /** Define a constant for the rotation angle of 180 degrees */
+    private static final int ROTATION_ANGLE_180 = 180;
+
+    /** Define a constant for the rotation angle of 270 degrees */
+    private static final int ROTATION_ANGLE_270 = 270;
+
+    /** Define a constant for the maximum rotation angle (360 degrees) */
+    private static final int MAX_ROTATION_ANGLE = 360;
+
     public PDFRotationUtils(Activity context) {
         this.mContext = context;
         this.mFileUtils = new FileUtils(mContext);
         mAngleRadioButton = new SparseIntArray();
-        mAngleRadioButton.put(R.id.deg90, 90);
-        mAngleRadioButton.put(R.id.deg180, 180);
-        mAngleRadioButton.put(R.id.deg270, 270);
+        mAngleRadioButton.put(R.id.deg90, ROTATION_ANGLE_90);
+        mAngleRadioButton.put(R.id.deg180, ROTATION_ANGLE_180);
+        mAngleRadioButton.put(R.id.deg270, ROTATION_ANGLE_270);
     }
 
     /**
@@ -81,7 +93,8 @@ public class PDFRotationUtils {
                 if (rotate == null)
                     page.put(PdfName.ROTATE, new PdfNumber(angle));
                 else
-                    page.put(PdfName.ROTATE, new PdfNumber((rotate.intValue() + angle) % 360));
+                    page.put(PdfName.ROTATE, new PdfNumber((rotate.intValue() + angle)
+                            % MAX_ROTATION_ANGLE));
             }
             PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(destFilePath));
             stamper.close();
